@@ -1,4 +1,5 @@
 # Library to Store Logic Gates
+import random
 
 # Logical NOT Function
 def NOT(q):
@@ -25,7 +26,14 @@ def CCNOT(q, qx, qy):
   else:
     return qy
     
-# Hadamard Gate
-#def HAD(q):
-  
-  
+    
+# Logical COIN Function
+def COIN():
+  return random.randint(0,1)
+
+# Logical CCOIN Function
+def CCOIN(qi):
+  if qi == 0:
+    return qi
+  else: 
+    return random.randint(0,1)
