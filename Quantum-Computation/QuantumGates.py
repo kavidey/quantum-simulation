@@ -57,18 +57,30 @@ def CCNOT(prob, qi, qj, qk):
 	
 	
 def Hadamard(prob, qi):
-	sqrt = 1.4142135623730951
-		
+	sqrtTwo = 1.4142135623730951
+	maski = 1 << qi
+	for i in range(0, len(prob)):
+		if i & maski != 1:
+			if prob[i] != 0:
+				if maski & i == 0:
+					prob[i] = prob[i]*(1/sqrtTwo)
+				else:
+					prob[i] = prob[i]*(-(1/sqrtTwo))
+				flip = flipBit(int(prob[i]), qi)
+				if prob[flip] == 0:
+					prob[flip] = 1
+				if maski & flip == 0:
+					prob[flip] = prob[flip]*(1/sqrtTwo)
+				else:
+					prob[flip] = prob[flip]*(-(1/sqrtTwo))		
+		return prob
 		
 Qubits = [1, 0, 0, 0]
-
-print '00,01,10,11'
+'''
 print NOT(Qubits, 0)
-print 'not done'
 print CNOT(Qubits, 0, 1)
-
-#print Hadamard(Qubits, 0)
-
+'''
+print Hadamard(Qubits, 0)
 
 
 # Old Code
