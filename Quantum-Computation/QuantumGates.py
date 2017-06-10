@@ -18,6 +18,14 @@ def swap(prob, loc, bit):
 	prob[invert] = tmp
 	return prob
 	
+def round(prob):
+	for i in range(0, len(prob)):
+		if prob[i] < 0.000000001 and prob[i] > -0.000000001:
+			prob[i] = 0
+		elif prob[i] < 1.00000001 and prob[i] > 0.99999999:
+			prob[i] = 1
+	return prob
+	
 # NOT gate (flips the probabilities of all pairs)
 def NOT(prob, qi):
 	# prob -- array of data
@@ -37,7 +45,6 @@ def CNOT(prob, qi, qj):
 	for i in xrange(0, len(prob)):
 		if i & maski != 0:
 			prob = swap(prob, i, qj)
-			print prob
 	return prob
 
 # CCNOT gate (flips the probabilities of a pair if the selected bits are both 1)
@@ -52,7 +59,6 @@ def CCNOT(prob, qi, qj, qk):
 		if i & maski != 0 and i & maskj != 0:
 			if i ^ maskj == 1:
 				prob = swap(prob, i, qk)
-				print prob
 	return prob
 	
 	
@@ -61,25 +67,42 @@ def Hadamard(prob, qi):
 	maski = 1 << qi
 	for i in range(0, len(prob)):
 		if i & maski != 1:
-			if prob[i] != 0:
-				if maski & i == 0:
-					prob[i] = prob[i]*(1/sqrtTwo)
-				else:
-					prob[i] = prob[i]*(-(1/sqrtTwo))
-				flip = flipBit(int(prob[i]), qi)
-				if prob[flip] == 0:
-					prob[flip] = 1
-				if maski & flip == 0:
-					prob[flip] = prob[flip]*(1/sqrtTwo)
-				else:
-					prob[flip] = prob[flip]*(-(1/sqrtTwo))		
-		return prob
+			print i
+			flip = flipBit(i, qi)
+			print flip
+			if prob[i] == 1 or prob[i] == 0:
+				if prob[i] != 0:
+					if maski & i == 0:
+						prob[i] = (1/sqrtTwo)*(prob[i])
+					else:
+						prob[i] = (-(1/sqrtTwo))*(prob[i])
+					if prob[flip] == 0:
+						prob[flip] = 1
+					if maski & flip == 0:
+						prob[flip] = (1/sqrtTwo)*(prob[flip])
+					else:
+						prob[flip] = (-(1/sqrtTwo))*(prob[flip])
+			
+			else:
+				if prob[i] != 0:
+					if maski & i == 0:
+						prob[i] = (1/sqrtTwo)*((prob[i])*2)
+						print 'i pos'
+					else:
+						prob[i] = (1/sqrtTwo)*(prob[i]+prob[flip])
+						print 'i neg'
+					if maski & flip == 0:
+						prob[flip] = (1/sqrtTwo)*(prob[flip]*2)
+						print 'fl pos'
+					else:
+						prob[flip] = ((1/sqrtTwo)*prob[i])+prob[flip]	
+						print 'fl neg'
+						
+		return round(prob)
 		
 Qubits = [1, 0, 0, 0]
-'''
-print NOT(Qubits, 0)
+print Hadamard(Qubits, 0)
 print CNOT(Qubits, 0, 1)
-'''
 print Hadamard(Qubits, 0)
 
 
