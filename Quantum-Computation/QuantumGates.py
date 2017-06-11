@@ -1,3 +1,5 @@
+# Quantum Gates Library
+
 # Function to flip a bit
 def flipBit(num, bit):
 	# num -- the number whose bit gets flipped
