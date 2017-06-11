@@ -20,10 +20,12 @@ def swap(prob, loc, bit):
 	
 def round(prob):
 	for i in range(0, len(prob)):
-		if prob[i] < 0.000000001 and prob[i] > -0.000000001:
+		if prob[i] < 0.000001 and prob[i] > -0.000001:
 			prob[i] = 0
-		elif prob[i] < 1.00000001 and prob[i] > 0.99999999:
+		elif prob[i] < 1.000001 and prob[i] > 0.999999:
 			prob[i] = 1
+		elif prob[i] < 0.5 and prob[i] > 0.499999:
+			prob[i] = 0.5
 	return prob
 	
 # NOT gate (flips the probabilities of all pairs)
@@ -61,67 +63,19 @@ def CCNOT(prob, qi, qj, qk):
 				prob = swap(prob, i, qk)
 	return prob
 	
-	
+
 def Hadamard(prob, qi):
 	sqrtTwo = 1.4142135623730951
 	maski = 1 << qi
 	for i in range(0, len(prob)):
-		if i & maski != 1:
-			print i
+		if i & maski == 0:
 			flip = flipBit(i, qi)
-			print flip
-			if prob[i] == 1 or prob[i] == 0:
-				if prob[i] != 0:
-					if maski & i == 0:
-						prob[i] = (1/sqrtTwo)*(prob[i])
-					else:
-						prob[i] = (-(1/sqrtTwo))*(prob[i])
-					if prob[flip] == 0:
-						prob[flip] = 1
-					if maski & flip == 0:
-						prob[flip] = (1/sqrtTwo)*(prob[flip])
-					else:
-						prob[flip] = (-(1/sqrtTwo))*(prob[flip])
-			
-			else:
-				if prob[i] != 0:
-					if maski & i == 0:
-						prob[i] = (1/sqrtTwo)*((prob[i])*2)
-						print 'i pos'
-					else:
-						prob[i] = (1/sqrtTwo)*(prob[i]+prob[flip])
-						print 'i neg'
-					if maski & flip == 0:
-						prob[flip] = (1/sqrtTwo)*(prob[flip]*2)
-						print 'fl pos'
-					else:
-						prob[flip] = ((1/sqrtTwo)*prob[i])+prob[flip]	
-						print 'fl neg'
-						
-		return round(prob)
-		
+			a = prob[i]
+			b = prob[flip]
+			prob[i] = (1/sqrtTwo) * (a+b)
+			prob[flip] = (1/sqrtTwo) * (a-b)
+	return round(prob) 
+
 Qubits = [1, 0, 0, 0]
 print Hadamard(Qubits, 0)
-print CNOT(Qubits, 0, 1)
-print Hadamard(Qubits, 0)
-
-
-# Old Code
-'''
-def opposite(num):
-  if num == 0:
-    return 1  
-  else:
-    return 0
-    	
-def flipBit(num, bit):
-	binNum = ''.join(reversed(bin(num).lstrip('0b')))
-	for i in xrange(0, 6):
-		while len(binNum) < 5:
-			binNum = binNum + '0'
-	#print binNum
-	#print bit - 1
-		flip = opposite(int(binNum[bit-1]))
-	binStr = ''.join(reversed(binNum[:bit-1] + str(flip) + binNum[bit-1]))
-	return int('0b' + binStr, 2)		
-'''
+print Hadamard(Qubits, 1)
