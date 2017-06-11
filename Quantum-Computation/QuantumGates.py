@@ -75,6 +75,7 @@ def Hadamard(prob, qi):
 	# prob -- array of data
 	# maski -- binary mask used to only apply Hadamards's when the control bit is 0
 	# sqrtTwo -- variable to store the square root of 2
+	# qi -- qbit to apply the Hadamard gate to
 	sqrtTwo = 1.4142135623730951
 	maski = 1 << qi
 	for i in range(0, len(prob)): # loop through all inputs
