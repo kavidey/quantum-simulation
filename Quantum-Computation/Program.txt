@@ -1,0 +1,7 @@
+5
+# Quantum Program
+H 0
+# H 0 done
+NOT 3
+H 2
+CCNOT 0 2 3
