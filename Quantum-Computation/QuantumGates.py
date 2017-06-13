@@ -1,3 +1,8 @@
+# Quantum Gates Library
+
+# Import necessary libraries
+import math
+
 # Function to flip a bit
 def flipBit(num, bit):
 	# num -- the number whose bit gets flipped
@@ -17,6 +22,13 @@ def swap(prob, loc, bit):
 	prob[loc] = prob[invert] # set prob[invert] to prob[loc] 
 	prob[invert] = tmp # set prob[invert] to tmp (the old prob[loc])
 	return prob
+
+# Function used in Grovers Algorithm 
+def F(qi):
+	# qi -- value to check
+	if qi == 2: # check if qi is 2
+		return 1 # if so return 1
+	return 0 # otherwise return 0
 	
 # Function that rounds all items in an array 
 # to the nearist simple decimia
@@ -86,3 +98,23 @@ def Hadamard(prob, qi):
 			prob[i] = (1/sqrtTwo) * (a+b) # set prob[i] to 1/sqrt2 * (a+b)
 			prob[flip] = (1/sqrtTwo) * (a-b )# set prob[flip] to 1/sqrt2 * (a-b)
 	return round(prob) 
+	
+def ZNOT(prob):
+	for i in range(1, len(prob)):
+		prob[i] = prob[0] - prob[i]*-1
+	return prob
+	
+def Oracle(prob):
+	for i in range(0, len(prob)):
+		if F(i) == 1:
+			prob[i] = prob[i] * -1
+	return prob
+	
+def GroverDiffusion(prob):
+	for i in range(0, int(math.log(len(prob), 2))):
+		Hadamard(prob, i)
+	ZNOT(prob)
+	for i in range(0, int(math.log(len(prob), 2))):
+		Hadamard(prob, i)
+	return prob
+	

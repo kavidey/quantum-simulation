@@ -1,7 +1,17 @@
 5
-# Quantum Program
+2048
 H 0
-# H 0 done
-NOT 3
+H 1
 H 2
-CCNOT 0 2 3
+H 3
+H 4
+Oracle
+GD
+Oracle
+GD
+Oracle
+GD
+Oracle
+GD
+Oracle
+GD
