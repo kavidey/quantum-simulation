@@ -1,0 +1,17 @@
+5
+32
+H 0
+H 1
+H 2
+H 3
+H 4
+Oracle
+GD
+Oracle
+GD
+Oracle
+GD
+Oracle
+GD
+Oracle
+GD
