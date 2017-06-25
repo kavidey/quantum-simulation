@@ -6,6 +6,9 @@ import QuantumGates
 # Import Random
 import random
 
+# Import Cmath
+import cmath
+
 # Read Program File
 file = open('Program.txt', 'r')
 
@@ -13,11 +16,11 @@ file = open('Program.txt', 'r')
 program = file.readlines()
 
 # Initalize QBit array and data storage array
-QBits = [0] * (2**int(program[0]))
+QBits = [complex(0.0, 0.0)] * (2**int(program[0]))
 Data = [0] * (2**int(program[0]))
 
 # Set first item to 1
-QBits[0] = 1
+QBits[0] = complex(1 ,0)
 
 # Set the deafault output as an array of probabilities
 outputData = False
@@ -62,31 +65,34 @@ for i in xrange(1, len(program)): # loop all rows in 'Program.txt'
   elif command[0] == 'GroverDiffusion' or command[0] == 'GD': # check if row is Grover Diffusion
   	QBits = QuantumGates.GroverDiffusion(QBits) # if so apply the Grover Diffusion
   	checkFirst = False
+  	  
+  elif command[0] == 'HadamardOverZn' or command[0] == 'HZn':
+  	QBits = QuantumGates.HZn(QBits)
 
 if outputData == False:
 	squared = []
 	for i in range(0, len(QBits)):
-		squared.append(QBits[i]**2)
+		squared.append((cmath.polar(QBits[i])[0])**2)
 	print squared
 else:
 	for i in range(0, times):
 		test = random.uniform(0.0,1.0)
 		if checkFirst == True:
-			prob = QBits[0]**2
+			prob = (cmath.polar(QBits[0])[0])**2
 			for i in range(0, len(QBits)):
-				if test < prob and test > (prob - (QBits[i]**2)):
+				if test < prob and test > (prob - (cmath.polar(QBits[i])[0])**2):
 					Data[i] = Data[i]+1
 				if i != len(QBits)-1:
-					prob = prob + (QBits[i+1]**2)
+					prob = prob + (cmath.polar(QBits[i])[0])**2
 				if QBits[i] == 0:
 					Data[i] = 0
 		else:	
-			prob = QBits[1]**2
+			prob = (cmath.polar(QBits[1]).r)**2
 			for i in range(1, len(QBits)):
-				if test < prob and test > (prob - (QBits[i]**2)):
+				if test < prob and test > (prob - (cmath.polar(QBits[i])[0])**2):
 					Data[i] = Data[i]+1
 				if i < len(QBits)-1:
-					prob = prob + (QBits[i+1]**2)
+					prob = prob + (cmath.polar(QBits[i])[0])**2
 				if QBits[i] == 0:
 					Data[i] = 0
 	print Data
