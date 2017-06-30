@@ -3,6 +3,7 @@
 # Import necessary libraries
 import math
 import cmath
+import random
 
 # Function to flip a bit
 def flipBit(num, bit):
@@ -25,23 +26,28 @@ def swap(amp, loc, bit):
 	return amp
 
 # Function used in Grovers Algorithm 
-def F(qi):
+def FGA(qi):
 	# qi -- value to check
 	if qi == 2: # check if qi is 2
 		return 1 # if so return 1
 	return 0 # otherwise return 0
 	
+# Function to find the period of with Shor's Algorithm 	
+def FSA(qi):
+	# qi -- input to function
+	return qi % 4 # return qi mod 4
+	
 # Function that rounds all items in an array 
 # to the nearist simple decimial
-def round(amp):
+def Round(amp):
 	# amp -- array to be rounded
 	for i in range(0, len(amp)): # loop through all items in array
-		if amp[i] < 0.000001 and amp[i] > -0.000001: # check if item is between 0.000001 and -0.000001
-			amp[i] = 0 # if so set item to 0
-		elif amp[i] < 1.000001 and amp[i] > 0.999999: # check if item is between 1.000001 and 0.999999
-			amp[i] = 1 # if so set item to 1
-		elif amp[i] < 0.5 and amp[i] > 0.499999: # check if item is between 0.5 and 0.499999
-			amp[i] = 0.5 # if so set item to 0.5
+		if cmath.polar(amp[i])[0] < 0.000001 and cmath.polar(amp[i])[0] > -0.000001: # check if item is between 0.000001 and -0.000001
+			amp[i] = complex(0, 0) # if so set item to 0
+		elif cmath.polar(amp[i])[0] < 1.000001 and cmath.polar(amp[i])[0] > 0.999999: # check if item is between 1.000001 and 0.999999
+			amp[i] = cmath.rect(1, cmath.polar(amp[i])[1]) # if so set item to 1
+		elif cmath.polar(amp[i])[0] < 0.5 and cmath.polar(amp[i])[0] > 0.499999: # check if item is between 0.5 and 0.499999
+			amp[i] = cmath.rect(0.5, cmath.polar(amp[i])[1]) # if so set item to 0.5
 	return amp # return the new array
 	
 # NOT gate (flips the amplitudes of all pairs)
@@ -97,9 +103,9 @@ def Hadamard(amp, qi):
 			a = amp[i] # store amp[i] in a
 			b = amp[flip] # store amp[flip] in b
 			amp[i] = (1/sqrtTwo) * (a+b) # set amp[i] to 1/sqrt2 * (a+b)
-			amp[flip] = (1/sqrtTwo) * (a-b )# set amp[flip] to 1/sqrt2 * (a-b)
+			amp[flip] = (1/sqrtTwo) * (a-b)# set amp[flip] to 1/sqrt2 * (a-b)
 	#return round(amp)
-	return amp 
+	return amp
 	
 # Z-NOT gate (inverts the the amplitude of all qbits except the first one)  
 def ZNOT(amp):
@@ -109,10 +115,10 @@ def ZNOT(amp):
 	return amp
 	
 # Oracle gate (used in grovers algorithm)
-def Oracle(amp):
+def OracleGA(amp):
 	# amp -- array of data
 	for i in range(0, len(amp)): # loop through all inputs
-		if F(i) == 1: # if F(i) is 1
+		if FGA(i) == 1: # if FGA(i) is 1
 			amp[i] = amp[i] * -1 # multiply the amplitude by -1
 	return amp
 	
@@ -143,15 +149,73 @@ def Omega(qi, qj, pwr, amp):
 	return amp # output amp
 	
 # Hadamard Gate over Z to the n
-def HZn(amp):
-	num = math.log(len(amp), 2)
-	num = int(num)
+def HZn(amp, num):
 	for i in range(num, 1, -1):
 		Hadamard(amp, i-1)
 		check = 1
 		for j in range(num, num-i):
 			if j > 1:
-				Omega(check, i, -((j-2)**2), amp)
+				Omega(check, i, -(2**(j-2)), amp)
 				check = check + 1
 	Hadamard(amp, 0)
 	return amp
+	
+# Oracle gate (used in Shor's algorithm)
+def OracleSA(amp, n):
+	for i in range(0, 2**n):
+		output = FSA(i) << n
+		tmp = amp[i]
+		amp[i+output] = amp[i]
+		amp[i] = tmp
+	return amp
+	
+# Measurement gate (used to measure a single QBit)
+def Measure(amp, qi, times):
+	maski = 1 << qi
+	Zero = 0
+	One = 0
+	for i in range(0, len(amp)): # loop through all amplitudes
+		if i & maski != 0: # check if amp[i] is 0
+			One = One + amp[i]**2 # add amp[i] squared to One
+		else: # otherwise
+			Zero = Zero + amp[i]**2 # add amp[i] squared to Zero
+			#print Zero
+	Zero = cmath.polar(Zero)[0] # store the norm square in Zero
+	One = cmath.polar(One)[0] # store the norm square in Zero
+	Data = [0,0] # creat a variable to store choices
+	for i in range(0, times): # loop n times
+		test = random.uniform(0.0,1.0) # get a random number between 0 and 1
+		if test < Zero: # check if test is less than 0
+			Data[0] = Data[0] + 1 # add 1 to Data[0]
+		else: # otherwise
+			Data[1] = Data[1] + 1 # add 1 to Data[0]
+	if Data[0] > Data[1]: # check if Data[0] is less than Data[1]
+		state = 0 # set state to 0
+	else: # otherwise
+		state = 1 # set state to 0
+	norm = 0 # set norm to 0
+	if state == 1: # check if state is 1
+		for i in range(0, len(amp)): # loop through amp
+			if i & maski != 0: # check if qi is 1 in i
+				norm = norm + (cmath.polar(amp[i])[0])**2 # add the length of amp[i] to norm
+	if state == 0: # check if state is 0
+		for i in range(0, len(amp)): # loop through amp
+			if i & maski != 0: # check if qi is 1 in i
+				pass # do nothing
+			else: # otherwise
+				norm = norm + (cmath.polar(amp[i])[0])**2 # add the length of amp[i] to norm
+	norm = 1/norm # set norm to divied 1 by norm
+	norm = math.sqrt(norm) # set norm to the square root of norm
+	if state == 0: # if state is 0
+		for i in range(0, len(amp)): # loop throught everything in amp
+			if i & maski != 0: # check if qi is 1 in i
+				amp[i] = complex(0, 0) # set amp[i] to complex 0
+	if state == 1: # if state is 1
+		for i in range(0, len(amp)): # loop throught everything in amp
+			if i & maski != 0: # check if qi is 1 in i
+				pass # do nothing
+			else: # otherwise
+				amp[i] = complex(0, 0) # set amp[i] to complex 0
+	for i in range(0, len(amp)): # loop throught everything in amp
+		amp[i] = amp[i] * norm # set amp to amp times norm
+	return amp # return amp

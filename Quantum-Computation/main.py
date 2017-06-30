@@ -36,13 +36,13 @@ for i in xrange(1, len(program)): # loop all rows in 'Program.txt'
   if i == 1:
   	try: # try
   		int(command[0]) # check if turning command[0] into an int returns an error
-  		outputData =  True # change ouptutData to True (output result of running simulation)
+  		#outputData =  True # change ouptutData to True (output result of running simulation)
   		times = int(command[0]) # set times to the value of command[0]
   	except ValueError: # except
   		outputData =  False # keep output data as false
        
   if command[0] == '#': # check if row is comment
-    print 'comment: ' + str(program[i]) # if so print the comment
+    print str(program[i])#[:-2] # if so print the comment
     
   elif command[0] == 'NOT': # check if row is a NOT gate
     QBits = QuantumGates.NOT(QBits,int(command[1])) # if so apply the NOT gate
@@ -59,15 +59,27 @@ for i in xrange(1, len(program)): # loop all rows in 'Program.txt'
   elif command[0] == 'ZNOT': # check if row is a ZNOT gate
   	QBits = QuantumGates.ZNOT(QBits) # if so apply the ZNOT gate
   	
-  elif command[0] == 'Oracle': # check if row is a Oracle gate
-  	QBits = QuantumGates.Oracle(QBits) # if so apply the Oracle gate
+  elif command[0] == 'OracleGA': # check if row is a Oracle gate (oracle from Grovers Algorithm)
+  	QBits = QuantumGates.OracleGA(QBits) # if so apply the Oracle gate (oracle from Grovers Algorithm)
   
   elif command[0] == 'GroverDiffusion' or command[0] == 'GD': # check if row is Grover Diffusion
   	QBits = QuantumGates.GroverDiffusion(QBits) # if so apply the Grover Diffusion
   	checkFirst = False
   	  
   elif command[0] == 'HadamardOverZn' or command[0] == 'HZn':
-  	QBits = QuantumGates.HZn(QBits)
+  	QBits = QuantumGates.HZn(QBits, int(command[1]))
+  	
+  elif command[0] == 'ADD':
+  	QBits = QBits + ([complex(0, 0)] * ( ( 2**(int(command[1]) + int(program[0]) ) ) - len(QBits) ) )
+  	Data = Data + ([0] * ( ( 2**(int(command[1]) + int(program[0]) ) ) - len(Data) ) )
+  	  	
+  elif command[0] == 'OracleSA': # check if row is a Oracle gate (oracle from Shor's Algorithm)
+    	QBits = QuantumGates.OracleSA(QBits, int(program[0])) # if so apply the Oracle gate (oracle from Shor's Algorithm)
+  	
+  elif command[0] == 'Measure' or command[0] == 'M':
+  	QBits = QuantumGates.Measure(QBits, int(command[1]), times)
+
+#QBits = QuantumGates.Round(QBits)
 
 if outputData == False:
 	squared = []
