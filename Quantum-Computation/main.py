@@ -20,7 +20,7 @@ QBits = [complex(0.0, 0.0)] * (2**int(program[0]))
 Data = [0] * (2**int(program[0]))
 
 # Set first item to 1
-QBits[0] = complex(1 ,0)
+QBits[0] = complex(1.0 ,0.0)
 
 # Set the deafault output as an array of probabilities
 outputData = False
@@ -79,7 +79,7 @@ for i in xrange(1, len(program)): # loop all rows in 'Program.txt'
   elif command[0] == 'Measure' or command[0] == 'M':
   	QBits = QuantumGates.Measure(QBits, int(command[1]), times)
 
-#QBits = QuantumGates.Round(QBits)
+QBits = QuantumGates.Round(QBits)
 
 if outputData == False:
 	squared = []
