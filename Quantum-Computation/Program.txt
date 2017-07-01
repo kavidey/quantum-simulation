@@ -1,5 +1,5 @@
 5
-1024
+512
 HZn 5
 ADD 3
 OracleSA

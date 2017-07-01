@@ -149,25 +149,30 @@ def Omega(qi, qj, pwr, amp):
 	
 # Hadamard Gate over Z to the n
 def HZn(amp, num):
-	for i in range(num, 0, -1):
-		Hadamard(amp, i-1)
-		check = 1
-		for j in range(num, num-(i-1), -1):
-			Omega(i-check-1, i, -(2**(j-2)), amp)
-			check = check + 1
+	# amp -- array of data
+	# num -- number of QBits of apply over
+	for i in range(num, 0, -1): # loop backwards from num to 0
+		Hadamard(amp, i-1) # apply a Hadamard Gate to the QBit i-1
+		check = 1 # set check to 1
+		for j in range(num, num-(i-1), -1): # loop backwards from num to num-(i-1)
+			Omega(i-check-1, i, -(2**(j-2)), amp) # apply an Omega gate on QBit i with i-check-1 as the controller bit and -(2**(j-2)) as the exponent
+			check = check + 1 # increase check by 1
 	return amp
 	
 # Oracle gate (used in Shor's algorithm)
 def OracleSA(amp, n):
-	for i in range(0, 2**n):
-		output = FSA(i) << n
+	for i in range(0, 2**n): # loop from 0 to 2 to the n
+		output = FSA(i) << n # set output to the result of FSA(i) shifted n bits to the right
 		tmp = amp[i] # store amp[i] in tmp
 		amp[i] = amp[output+i] # set amp[i+output] to amp[i] 
 		amp[output+i] = tmp # set amp[i+output] to tmp (the old amp[i])
-	return amp
+	return amp # return amp
 	
 # Measurement gate (used to measure a single QBit)
 def Measure(amp, qi, times):
+	# amp -- array of data
+	# qi -- QBit to be measured
+	# maski -- binary mask used to check if the control bit is 1
 	maski = 1 << qi
 	Zero = 0
 	One = 0
@@ -202,7 +207,6 @@ def Measure(amp, qi, times):
 				norm = norm + (cmath.polar(amp[i])[0])**2 # add the length of amp[i] squared to norm
 	norm = 1/norm # set norm to divied 1 by norm
 	norm = math.sqrt(norm) # set norm to the square root of norm
-	print norm
 	if state == 0: # if state is 0
 		for i in range(0, len(amp)): # loop throught everything in amp
 			if i & maski != 0: # check if qi is 1 in i
@@ -215,5 +219,4 @@ def Measure(amp, qi, times):
 				amp[i] = complex(0.0, 0.0) # set amp[i] to complex 0
 	for i in range(0, len(amp)): # loop throught everything in amp
 		amp[i] = amp[i] * norm # set amp to amp times norm
-	print amp
 	return amp # return amp
