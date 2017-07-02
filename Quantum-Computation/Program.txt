@@ -1,6 +1,9 @@
 5
-512
-HZn 5
+H 0
+H 1
+H 2
+H 3
+H 4
 ADD 3
 OracleSA
 M 5

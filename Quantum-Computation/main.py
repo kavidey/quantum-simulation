@@ -36,7 +36,7 @@ for i in xrange(1, len(program)): # loop all rows in 'Program.txt'
   if i == 1:
   	try: # try
   		int(command[0]) # check if turning command[0] into an int returns an error
-  		#outputData =  True # change ouptutData to True (output result of running simulation)
+  		outputData =  True # change ouptutData to True (output result of running simulation)
   		times = int(command[0]) # set times to the value of command[0]
   	except ValueError: # except
   		outputData =  False # keep output data as false

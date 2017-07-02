@@ -132,19 +132,23 @@ def GroverDiffusion(amp):
 	return amp # apply a ZNOT gate
 	
 # Omega gate (phase shift gate)
-def Omega(qi, qj, pwr, amp):
+def Omega(qi, qj, pwr, amp, num):
 	# amp -- array of data
 	# qi -- controller bit
-	# qj -- qubit to be NOT'd
-	# maski -- binary mask used to only apply CNOT's when the control bit is 1
+	# qj -- qubit to be shifted
+	# maski -- binary mask used to only apply shifts when the control bit is 1
 	# pwr -- number used as exponent
 	maski = 1 << qi
-	if qi & maski != 0: # check if control bit (qi) is one
-		comp = cmath.polar(amp[qj]) # store amp{qj] in comp
-		num = float(len(amp)) # store the length of amp in num
-		shift = pwr/num # store the amount to turn by in shift 
-		comp[1] = comp[1] + shift # shift comp
-		amp[qj] = cmath.rect(comp) # store comp in amp[qj]
+	maskj = 1 << qj
+	print "qi = %d, qj = %d, pwr = %d" % (qi, qj, pwr)
+	for i in range(0, len(amp)):
+		if i & maski != 0 and i & maskj != 0: # check if control bit (qi) is one
+			comp = cmath.polar(amp[i]) # store amp[qj] in comp
+			num = float(2 ** num) # store the length of amp in num
+			shift = pwr/num # store the amount to turn by in shift 
+			print i, shift
+			shift *= cmath.pi * 2
+			amp[i] = cmath.rect(comp[0], comp[1] + shift) # store comp in amp[qj]
 	return amp # output amp
 	
 # Hadamard Gate over Z to the n
@@ -155,7 +159,7 @@ def HZn(amp, num):
 		Hadamard(amp, i-1) # apply a Hadamard Gate to the QBit i-1
 		check = 1 # set check to 1
 		for j in range(num, num-(i-1), -1): # loop backwards from num to num-(i-1)
-			Omega(i-check-1, i, -(2**(j-2)), amp) # apply an Omega gate on QBit i with i-check-1 as the controller bit and -(2**(j-2)) as the exponent
+			amp = Omega(i-check-1, i-1, -(2**(j-2)), amp, num) # apply an Omega gate on QBit i with i-check-1 as the controller bit and -(2**(j-2)) as the exponent
 			check = check + 1 # increase check by 1
 	return amp
 	
@@ -178,22 +182,15 @@ def Measure(amp, qi, times):
 	One = 0
 	for i in range(0, len(amp)): # loop through all amplitudes
 		if i & maski != 0: # check if amp[i] is 0
-			One = One + amp[i]**2 # add amp[i] squared to One
+			One = One + cmath.polar(amp[i])[0]**2 # add amp[i] squared to One
 		else: # otherwise
-			Zero = Zero + amp[i]**2 # add amp[i] squared to Zero
-	Zero = cmath.polar(Zero)[0] # store the norm in Zero
-	One = cmath.polar(One)[0] # store the norm in One
+			Zero = Zero + cmath.polar(amp[i])[0]**2 # add amp[i] squared to Zero
 	Data = [0,0] # create a variable to store data from random numbers
-	for i in range(0, times): # loop n times
-		test = random.uniform(0.0,1.0) # get a random number between 0 and 1
-		if test < Zero: # check if test is less than 0
-			Data[0] = Data[0] + 1 # add 1 to Data[0]
-		else: # otherwise
-			Data[1] = Data[1] + 1 # add 1 to Data[0]
-	if Data[0] > Data[1]: # check if Data[0] is less than Data[1]
+	test = random.uniform(0.0,1.0) # get a random number between 0 and 1
+	if test < Zero: # check if test is less than 0
 		state = 0 # set state to 0
 	else: # otherwise
-		state = 1 # set state to 0
+		state = 1 # set state to 1
 	norm = 0 # set norm to 0
 	if state == 1: # check if state is 1
 		for i in range(0, len(amp)): # loop through amp
@@ -220,3 +217,7 @@ def Measure(amp, qi, times):
 	for i in range(0, len(amp)): # loop throught everything in amp
 		amp[i] = amp[i] * norm # set amp to amp times norm
 	return amp # return amp
+
+if __name__ == "__main__":
+	amp = [complex(0.5, 0.0), complex(0.0, 0.0)] * 4
+	print HZn(amp, 3)
