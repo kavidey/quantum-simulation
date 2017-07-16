@@ -4,6 +4,7 @@
 import math
 import cmath
 import random
+import numpy as np
 
 # Function to flip a bit
 def flipBit(num, bit):
@@ -21,8 +22,9 @@ def swap(amp, loc, bit):
 	# bit -- used to calculate index of 2nd item
 	tmp = amp[loc] # store amp[loc] in tmp
 	invert = flipBit(loc, bit) # find the inverted location
-	amp[loc] = amp[invert] # set amp[invert] to amp[loc] 
-	amp[invert] = tmp # set amp[invert] to tmp (the old amp[loc])
+	if invert > loc:
+		amp[loc] = amp[invert] # set amp[invert] to amp[loc] 
+		amp[invert] = tmp # set amp[invert] to tmp (the old amp[loc])
 	return amp
 
 # Function used in Grovers Algorithm 
@@ -68,7 +70,7 @@ def CNOT(amp, qi, qj):
 	# qj -- qubit to be NOT'd
 	# maski -- binary mask used to only apply CNOT's when the control bit is 1
 	maski = 1 << qi
-	for i in xrange(0, len(amp)): # loop through all inputs
+	for i in range(0, len(amp)): # loop through all inputs
 		if i & maski != 0: # check if control bit (qi) is one
 			amp = swap(amp, i, qj) # if so swap that bit and its inverse
 	return amp # return the new array
@@ -140,13 +142,13 @@ def Omega(qi, qj, pwr, amp, num):
 	# pwr -- number used as exponent
 	maski = 1 << qi
 	maskj = 1 << qj
-	print "qi = %d, qj = %d, pwr = %d" % (qi, qj, pwr)
+	N = float(2 ** num) # store the length of amp in num
+	#print "qi = %d, qj = %d, pwr = %d" % (qi, qj, pwr)
 	for i in range(0, len(amp)):
 		if i & maski != 0 and i & maskj != 0: # check if control bit (qi) is one
 			comp = cmath.polar(amp[i]) # store amp[qj] in comp
-			num = float(2 ** num) # store the length of amp in num
-			shift = pwr/num # store the amount to turn by in shift 
-			print i, shift
+			shift = pwr/N # store the amount to turn by in shift 
+			#print i, shift
 			shift *= cmath.pi * 2
 			amp[i] = cmath.rect(comp[0], comp[1] + shift) # store comp in amp[qj]
 	return amp # output amp
@@ -217,7 +219,18 @@ def Measure(amp, qi, times):
 	for i in range(0, len(amp)): # loop throught everything in amp
 		amp[i] = amp[i] * norm # set amp to amp times norm
 	return amp # return amp
+	
+	
+def Rotate(amp, rot):
+	r = rot[0]
+	matrix = np.array([[math.cos(r), math.sin(r)], [math.sin(r), -(math.cos(r))]])
+	for i in range(1, len(rot)):
+		r = rot[i]
+		m = np.array([[math.cos(r), math.sin(r)], [math.sin(r), -(math.cos(r))]])
+		matrix = np.kron(m, matrix)
+	#print matrix
+	return np.inner(matrix, amp)
 
-if __name__ == "__main__":
-	amp = [complex(0.5, 0.0), complex(0.0, 0.0)] * 4
-	print HZn(amp, 3)
+if __name__ == '__main__':
+	print CNOT([1/math.sqrt(2), 0, 1/math.sqrt(2), 0], 1, 0)
+	#print Rotate([1/math.sqrt(2), 0, 1/math.sqrt(2), 0], [math.pi/4, 0])
