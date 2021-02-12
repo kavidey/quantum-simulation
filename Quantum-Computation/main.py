@@ -112,3 +112,6 @@ def Run():
 					if QBits[i] == 0:
 						Data[i] = 0
 		return Data
+
+if __name__ == "__main__":
+	print(Run())
