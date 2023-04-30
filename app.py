@@ -71,4 +71,4 @@ for _ in range(iterations):
 	else:
 		pass
 		# print 'players loose :('
-print float(count) / iterations
+print(float(count) / iterations)

@@ -1,5 +1,3 @@
-# This file contains the classical parts of Shor's algorithm
-# By "Matt" Yixiu Zhao
 import random
 
 # Takes N > 1 and finds a nontrivial factor of N, if it exists.
@@ -19,6 +17,7 @@ def shor(N, tries=1000):
         # the order of a in Z*_N
         #################################################
         r = findPeriod(N, a)
+        
         ########################################################
         # 3. If r is even and a ** (r/2) mod N != N-1 we're done
         # Otherwise repeat
@@ -28,7 +27,7 @@ def shor(N, tries=1000):
                 factor = gcd(a ** (r/2) - 1, N)
                 return factor
 
-    print "Failed to find factor!"
+    print("Failed to find factor!")
     return None
 
 # Calculates the greatest common divisor of a and b
@@ -67,4 +66,4 @@ def findPeriod(N, a):
     return None
 
 if __name__ == '__main__':
-    print shor(373 * 379)
+    print(shor(373 * 379))
