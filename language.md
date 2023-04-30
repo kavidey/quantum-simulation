@@ -46,6 +46,6 @@ CNOT 0 1
 ```
 This program should output `11` 50% of the time and `00` the other 50%. Both bits are entangled, so they will always have the same value.
 
----
+<!-- ---
 
-Sample programs for Grover's and Shor's algorithms are on the way!
+Sample programs for Grover's and Shor's algorithms are on the way! -->
